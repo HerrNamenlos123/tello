@@ -5,8 +5,7 @@ add_subdirectory(.. bin)    # Path to the top-level CMakeLists.txt from the actu
                             # or just copy-and-paste it into your 'include' directory (while omitting the target_link_libraries below)
 
 set(SOURCES
-    src/main.cpp 
-    src/tello.cpp
+    src/main.cpp
 )
 
 add_executable(example ${SOURCES})
