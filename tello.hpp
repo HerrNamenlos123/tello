@@ -414,7 +414,7 @@ namespace std
 #define __LOG_COLOR_BLUE "1;94"
 #define __LOG_COLOR_YELLOW "0;93"
 #define __LOG_COLOR_WHITE "0;97"
-#define __LOG_COLOR(color, msg, ...) printf("\033[%sm" ##msg "\033[m\n", color, ##__VA_ARGS__)
+#define __LOG_COLOR(color, msg, ...) printf("\033[%sm" msg "\033[m\n", color, ##__VA_ARGS__)
 
 #define PRINTF(fmt, ...) __LOG_COLOR(__LOG_COLOR_WHITE, fmt, ##__VA_ARGS__)
 #define PRINTF_INFO(fmt, ...) __LOG_COLOR(__LOG_COLOR_GREEN, fmt, ##__VA_ARGS__)
