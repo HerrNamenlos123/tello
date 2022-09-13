@@ -761,6 +761,7 @@ private:
 	}
 	
 	void OnResponse(const std::string& data) {
+		PRINTF_ERROR("Reponse: %s", data.c_str());
 		if (data == "ok") {
 			responseOK = true;
 			return;
