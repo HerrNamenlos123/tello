@@ -492,6 +492,7 @@ class Tello {
 				PRINTF_ERROR("%s(): socket.bind() failed. The port %d may be in use by another application.", __FUNCTION__, port);
 				return;
 			}
+			PRINTF_ERROR("async port %d", port);
 			listener = std::thread([&] { listen(); });
 		}
 
@@ -509,7 +510,7 @@ class Tello {
 	private:
 		void listen() {
 			while (!terminate) {
-				PRINTF_ERROR("recv: %d", port);
+				PRINTF_ERROR("recv");
 				int error = socket.recv(data, ipaddr);
 				PRINTF_ERROR("recv: %s", data.c_str());
 				if (error < 0) {
