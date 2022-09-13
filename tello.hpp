@@ -524,7 +524,7 @@ class Tello {
 		std::string data;
 
 		std::thread listener;
-		std::atomic<bool> terminate = false;
+		std::atomic<bool> terminate;
 		std::function<void(const std::string&, const UDPsocket::IPv4&)> callback;
 	};
 
