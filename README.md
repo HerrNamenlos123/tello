@@ -98,6 +98,14 @@ tello.missionPadAPI.fly_arc_to_pad();
 tello.missionPadAPI.jump_to_next_pad();
 ```
 
+## My drone is not connecting
+
+To connect to the drone, connect to its wi-fi and then run the program. If it doesn't connect instantly, there are some things you might watch out for:
+
+ - **(1) The Firewall**: Some specific ports must be open so that the drone can respond back. Port 8889 goes to the drone and is usually not a problem (outgoing). Ports 8890, 11111 and 36085 are ingoing and must be allowed.
+
+ - **(2) Inside a Virtual Machine**: The same as above applies for a virtual machine. The ingoing ports must be allowed on both machines. Additionally, you must set up port forwarding for these 3 ports from your host to your VM. This is usually done in your VM's Hypervisor settings.
+
 
 ## Licensing📃
 
@@ -105,4 +113,4 @@ This library is released under the MIT License. This means you are allowed and e
 
 ## Acknowledgements💡
 
-This library uses the [UDPsocket](https://github.com/barczynsky/UDPsocket) single-header library, embedded into `tello.hpp` itself.
+This library uses the [UDPsocket](https://github.com/barczynsky/UDPsocket) single-header library, embedded directly into `tello.hpp` itself.
