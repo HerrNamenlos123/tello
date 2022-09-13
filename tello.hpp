@@ -534,7 +534,7 @@ class Tello {
 
 		bool enable_pad_detection() { return tello->execute_command("mon"); }
 		bool disable_pad_detection() { return tello->execute_command("moff"); }
-		bool set_pad_detection_direction(enum class MP_DetectDir direction) {
+		bool set_pad_detection_direction(enum MP_DetectDir direction) {
 			return tello->execute_command("mdirection", static_cast<int>(direction));
 		}
 		
@@ -627,7 +627,7 @@ public:
 	bool turn_right(float angle_deg) { return execute_command("cw", angle_deg); }
 	bool turn_left(float angle_deg) { return execute_command("ccw", angle_deg); }
 	
-	bool flip(enum class FlipDirection flipDirection) { 
+	bool flip(enum FlipDirection flipDirection) { 
 		return execute_command("flip", static_cast<char>(flipDirection));
 	}
 		
