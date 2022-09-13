@@ -2,17 +2,17 @@
 #ifndef _TELLO_H
 #define _TELLO_H
 
-// #define TELLO_ONLY_DECLARE
 
 
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
 
 // ====================================================================================
 // ===                                                                              ===
 // ===   Begin of the UDPsocket library (https://github.com/barczynsky/UDPsocket)   ===
 // ===                                                                              ===
 // ====================================================================================
-
-#ifndef TELLO_ONLY_DECLARE
 
 #pragma once
 #ifdef _WIN32
@@ -371,8 +371,6 @@ namespace std
     };
 }
 
-#endif	// TELLO_ONLY_DECLARE
-
 // =========================================
 // ===                                   ===
 // ===   End of the UDPsocket library    ===
@@ -394,8 +392,6 @@ namespace std
 // https://dl-cdn.ryzerobotics.com/downloads/Tello/Tello%20SDK%202.0%20User%20Guide.pdf
 //
 
-#ifndef TELLO_ONLY_DECLARE
-
 #include <thread>
 #include <chrono>
 #include <mutex>
@@ -405,8 +401,6 @@ namespace std
 #ifndef _MSC_VER
 #define __FUNCTION__ __PRETTY_FUNCTION__
 #endif
-
-#endif	// TELLO_ONLY_DECLARE
 
 #define TELLO_DEFAULT_IP "192.168.10.1"
 #define TELLO_DEFAULT_COMMAND_PORT 8889

@@ -1,6 +1,5 @@
 
 #define TELLO_DEBUG     // This can be used to enable verbose logging
-
 #include "tello.hpp"
 #include <iostream>
 

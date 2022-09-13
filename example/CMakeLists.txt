@@ -10,12 +10,8 @@ set(SOURCES
 
 add_executable(example ${SOURCES})
 target_include_directories(example PUBLIC include)
-target_link_libraries(example tello)
+target_link_libraries(example tello)                    # Depends on the tello INTERFACE library (consisting only of the header)
 
-if (MSVC)
-    target_compile_definitions(example PRIVATE
-       WIN32_LEAN_AND_MEAN      # Prevents Windows.h from adding unnecessary includes
-       NOMINMAX                 # Prevents Windows.h from defining min/max as macros 
-       _CRT_SECURE_NO_WARNINGS  # Prevents MSVC warnings about deprecated functions
-    )
-endif()
+target_compile_features(example PUBLIC cxx_std_14)                  # C++14 standard required
+set_target_properties(example PROPERTIES CXX_STANDARD_REQUIRED ON)  # We need the standard
+set_target_properties(example PROPERTIES CXX_EXTENSIONS OFF)        # Strictly adhere to the standard, no compiler-specific additions
