@@ -1,11 +1,11 @@
 
-#define TELLO_DEBUG
-#include "tello.hpp"
-#include "tello.h"
-
 #include <iostream>
 
+//#define TELLO_ONLY_DECLARE
+#include "tello.hpp"
+
 void fly() {
+	
     Tello tello;
 
     if (!tello.connect()) {
@@ -13,9 +13,8 @@ void fly() {
     }
 
     tello.takeoff();
-
-    tello.move_to_position(50, 50, 50, 10);
-    tello.move_to_position(-50, -50, -50, 10);
+	
+    
 
     tello.land();
 }
@@ -28,6 +27,9 @@ int main() {
 }
 
 
+
+//tello.move_to_position(50, 50, 50, 10);
+//tello.move_to_position(-50, -50, -50, 10);
 
 //tello.move_right(30);
 //tello.move_forward(30);
