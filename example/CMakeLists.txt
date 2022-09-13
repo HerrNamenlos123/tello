@@ -15,4 +15,8 @@ add_executable(example ${SOURCES})
 target_include_directories(example PUBLIC include)
 target_link_libraries(example tello)                    # Depends on the tello INTERFACE library (consisting only of the header)
 
-target_compile_options(example PUBLIC --std=c++14)      # C++14 standard required
+if (MSVC)
+    target_compile_options(example PUBLIC /std:c++14)       # C++14 standard required
+else()
+    target_compile_options(example PUBLIC --std=c++14)      # C++14 standard required
+endif()
