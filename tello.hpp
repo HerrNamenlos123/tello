@@ -560,9 +560,9 @@ public:
 		uint16_t dataPort = TELLO_DEFAULT_DATA_PORT,
 		uint16_t videoPort = TELLO_DEFAULT_VIDEO_PORT,
 		uint16_t localPort = TELLO_DEFAULT_LOCAL_PORT) :
-		commandServer(localPort, [&](auto& data, auto& ip) { OnResponse(data); }),
-		dataServer(dataPort, [&](auto& data, auto& ip) { OnDataStream(data); }),
-		videoServer(videoPort, [&](auto& data, auto& ip) { OnVideoStream(data); }),
+		commandServer(localPort, [&](auto& data, auto& ip) { this->OnResponse(data); }),
+		dataServer(dataPort, [&](auto& data, auto& ip) { this->OnDataStream(data); }),
+		videoServer(videoPort, [&](auto& data, auto& ip) { this->OnVideoStream(data); }),
 		commandPort(commandPort),
 		timeout(timeout),
 		missionPadAPI(this)
