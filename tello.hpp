@@ -459,7 +459,8 @@ class Tello {
         }
 
         bool send(const std::string& data) {
-            return socket.send(data, UDPsocket::IPv4::IPv4(targetIP, targetPort)) >= 0;
+			auto ip = UDPsocket::IPv4::IPv4(targetIP, targetPort);
+            return socket.send(data, ip) >= 0;
         }
 
 		std::pair<bool, std::string> recv() {
