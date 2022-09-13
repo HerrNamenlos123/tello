@@ -509,7 +509,9 @@ class Tello {
 	private:
 		void listen() {
 			while (!terminate) {
+				PRINTF_ERROR("recv");
 				int error = socket.recv(data, ipaddr);
+				PRINTF_ERROR("recv: %s", data.c_str());
 				if (error < 0) {
 					PRINTF_ERROR("%s(): socket.recv() failed: Error code %d", __FUNCTION__, error);
 					continue;
@@ -761,7 +763,6 @@ private:
 	}
 	
 	void OnResponse(const std::string& data) {
-		PRINTF_ERROR("Reponse: %s", data.c_str());
 		if (data == "ok") {
 			responseOK = true;
 			return;
