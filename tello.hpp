@@ -808,8 +808,8 @@ private:
 	std::string response;
 
 	std::mutex actionMTX;
-	std::atomic<bool> responseOK = false;
-	std::atomic<bool> responseError = false;
+	std::atomic<bool> responseOK;
+	std::atomic<bool> responseError;
 	bool inAir = false;
 	int timeout = 0;
 };
