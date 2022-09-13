@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.0.2)
 project(example LANGUAGES CXX)
 
 add_subdirectory(.. bin)    # Path to the top-level CMakeLists.txt from the actual tello library. You can either find and link it like this

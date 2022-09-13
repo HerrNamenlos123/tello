@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.0.2)
 
 project(tello VERSION 0.1.1 LANGUAGES CXX)
 

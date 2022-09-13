@@ -6,13 +6,22 @@ C++14 single-header library to control a DJI Ryze Tello drone using the Tello SD
 
 ## Build process
 
-There is no build process. This is a single-header library, which means you only need to include [tello.hpp](tello.hpp) and that's it. Look at the examples to see how to use it.
+There is no build or install process for the library. You only need to include [tello.hpp](tello.hpp) and that's it. Look at the examples to see how to use it.
 
-Alternatively, there is also a `CMakeLists.txt` available, so if you want to keep it easy to update you might also use this repository as a git submodule. Then you would simply include the library in cmake. Take a look at the [example](example) folder.
+Alternatively, there is also a `CMakeLists.txt` available, so if you want to keep it easy to update you might also use this repository as a git submodule. Then you would simply include the library in cmake. Take a look at the [example](example) folder to see how it is done using CMake.
 
-## Portability
+### Building the example
 
-Due to the nature of single-header libraries
+```bash
+mkdir build
+cd build
+cmake ..
+cmake --build .    # Build the app, regardless of the build system (e.g. calls 'make')
+```
+
+## Portability/Compatitibility
+
+This library is written in C++14, which means your program which it using it must be compiled using at least C++14 or higher. 
 
 ## Examples
 
