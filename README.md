@@ -10,6 +10,12 @@ There is no build or install process for the library. You only need to include [
 
 Alternatively, there is also a `CMakeLists.txt` available, so if you want to keep it easy to update you might also use this repository as a git submodule. Then you would simply include the library in cmake. Take a look at the [example](example) folder to see how it is done using CMake.
 
+## Portability/Compatitibility
+
+This library is written in C++14, which means your program which it using it must be compiled using at least C++14 or higher. 
+
+## Examples
+
 ### Building the example
 
 ```bash
@@ -18,12 +24,6 @@ cd build
 cmake ..
 cmake --build .    # Build the app, regardless of the build system (e.g. calls 'make')
 ```
-
-## Portability/Compatitibility
-
-This library is written in C++14, which means your program which it using it must be compiled using at least C++14 or higher. 
-
-## Examples
 
 ### Simple example
 
@@ -79,6 +79,19 @@ tello.get_serial_number();
 ```
 
 Disclaimer: Only the functions which you are most likely to use are listed here. Not all are documented.
+
+### Mission Pad API
+
+All functions regarding Mission Pads are separated into a nested structure, because they are very uncommon to use for most users. This keeps your IntelliSense suggestions clean.
+
+```c++
+tello.missionPadAPI.enable_pad_detection();
+tello.missionPadAPI.disable_pad_detection();
+tello.missionPadAPI.set_pad_detection_direction();
+tello.missionPadAPI.fly_straight_to_pad();
+tello.missionPadAPI.fly_arc_to_pad();
+tello.missionPadAPI.jump_to_next_pad();
+```
 
 
 ## Licensing📃
