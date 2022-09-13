@@ -502,7 +502,8 @@ class Tello {
 		}
 
 		bool send(const std::string& ip, uint16_t port, const std::string& data) {
-			return socket.send(data, UDPsocket::IPv4::IPv4(ip, port)) >= 0;
+			UDPsocket::IPv4 _ip(ip, port);
+			return socket.send(data, _ip) >= 0;
 		}
 
 	private:
