@@ -484,6 +484,7 @@ class Tello {
 	public:
 		AsyncSocket(uint16_t port, std::function<void(const std::string&, const UDPsocket::IPv4&)> callback) {
 			this->callback = callback;
+			this->terminate = false;
 			if (socket.open() < 0) {
 				PRINTF_ERROR("%s(): socket.open() failed.", __FUNCTION__);
 				return;
@@ -492,7 +493,7 @@ class Tello {
 				PRINTF_ERROR("%s(): socket.bind() failed. The port %d may be in use by another application.", __FUNCTION__, port);
 				return;
 			}
-			//PRINTF_ERROR("async port %d", port);
+			PRINTF_ERROR("async port %d", port);
 			listener = std::thread([&] { listen(); });
 		}
 
@@ -510,9 +511,9 @@ class Tello {
 	private:
 		void listen() {
 			while (!terminate) {
-				//PRINTF_ERROR("recv");
+				PRINTF_ERROR("recv");
 				int error = socket.recv(data, ipaddr);
-				//PRINTF_ERROR("recv: %s", data.c_str());
+				PRINTF_ERROR("recv: %s", data.c_str());
 				if (error < 0) {
 					PRINTF_ERROR("%s(): socket.recv() failed: Error code %d", __FUNCTION__, error);
 					continue;
