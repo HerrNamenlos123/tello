@@ -2,7 +2,7 @@
 
 # Tello
 
-C++14 single-header cross-platform library to control a DJI Ryze Tello drone using the Tello SDK 2.0
+C++14 single-header cross-platform library to control a DJI Ryze Tello drone using the [Tello SDK 2.0](https://dl-cdn.ryzerobotics.com/downloads/Tello/Tello%20SDK%202.0%20User%20Guide.pdf).
 
 ## Build process
 
@@ -96,6 +96,39 @@ tello.missionPadAPI.set_pad_detection_direction();
 tello.missionPadAPI.fly_straight_to_pad();
 tello.missionPadAPI.fly_arc_to_pad();
 tello.missionPadAPI.jump_to_next_pad();
+```
+
+### Sleep
+
+And finally, there is also sleep. This is just for your convenience, it simply puts the current thread to sleep for x milliseconds;
+
+```c++
+tello.sleep(100);       // Sleep 100ms
+```
+
+## Tello State example
+
+This is the way to access the Tello State string which is streamed by the Tello. The string is parsed automatically in the background, as soon as one arrives. `tello.state();` is thread-safe.
+
+```c++
+while (true) {
+    auto state = tello.state();		// These values are refreshed 
+                                    // asynchronously at around 10 Hz
+    
+    std::cout << "pitch: " << state.pitch << std::endl;
+    std::cout << "roll: " << state.roll << std::endl;
+    std::cout << "yaw: " << state.yaw << std::endl;
+    
+    std::cout << "height: " << state.height << std::endl;
+    std::cout << "sea height: " << state.sea_height << std::endl;
+    std::cout << "accel x: " << state.agx << std::endl;
+    std::cout << "accel y: " << state.agy << std::endl;
+    std::cout << "accel z: " << state.agz << std::endl;
+    
+    std::cout << std::endl;
+    
+    tello.sleep(100);   // Wait 100ms
+}
 ```
 
 ## My drone is not connecting

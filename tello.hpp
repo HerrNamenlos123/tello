@@ -492,7 +492,7 @@ class Tello {
 				PRINTF_ERROR("%s(): socket.bind() failed. The port %d may be in use by another application.", __FUNCTION__, port);
 				return;
 			}
-			PRINTF_ERROR("async port %d", port);
+			//PRINTF_ERROR("async port %d", port);
 			listener = std::thread([&] { listen(); });
 		}
 
@@ -510,9 +510,9 @@ class Tello {
 	private:
 		void listen() {
 			while (!terminate) {
-				PRINTF_ERROR("recv");
+				//PRINTF_ERROR("recv");
 				int error = socket.recv(data, ipaddr);
-				PRINTF_ERROR("recv: %s", data.c_str());
+				//PRINTF_ERROR("recv: %s", data.c_str());
 				if (error < 0) {
 					PRINTF_ERROR("%s(): socket.recv() failed: Error code %d", __FUNCTION__, error);
 					continue;
@@ -555,6 +555,37 @@ class Tello {
 	
 	private:
 		Tello* tello;
+	};
+
+public:
+
+	struct TelloState {
+
+		// These are only available with mission point detection enabled
+		int32_t mp_id = 0;			// Mission point ID
+		int32_t mp_x = 0;			// Mission point X coordinate
+		int32_t mp_y = 0;			// Mission point Y coordinate
+		int32_t mp_z = 0;			// Mission point Z coordinate
+		// There is also a 'vec3 mpry' property, but is not documented 
+		// and thus ignored in this implementation
+
+		// These are always available
+		int32_t pitch = 0;			// Pitch
+		int32_t roll = 0;			// Roll
+		int32_t yaw = 0;			// Yaw
+		int32_t vgx = 0;			// Commanded speed of X-Axis
+		int32_t vgy = 0;			// Commanded speed of Y-Axis
+		int32_t vgz = 0;			// Commanded speed of Z-Axis
+		int32_t templ = 0;			// Lowest temperature in degrees
+		int32_t temph = 0;			// Highest temperature in degrees
+		uint32_t height = 0;		// Ground height (Time of flight distance in cm)
+		uint32_t h = 0;				// (?) Ground height in cm?
+		uint32_t battery = 0;		// Battery percentage
+		float sea_height = 0.f;		// Barometer measurement (sea height) in m
+		int32_t time = 0;			// Amount of time the motor has been used
+		float agx = 0.f;			// Accelerometer measurement X-Axis
+		float agy = 0.f;			// Accelerometer measurement Y-Axis
+		float agz = 0.f;			// Accelerometer measurement Z-Axis
 	};
 
 public:
@@ -699,6 +730,11 @@ public:
 		std::this_thread::sleep_for(std::chrono::milliseconds(ms));
 	}
 
+	TelloState state() {
+		std::lock_guard<std::mutex> lock(stateMTX);
+		return _state;
+	}
+
 private:
 
 	float get_float(const std::string& cmd) {
@@ -777,8 +813,45 @@ private:
 		responseOK = true;
 	}
 
-	void OnDataStream(const std::string& data) {
+	void OnDataStream(std::string data) {
+		// Parse the Tello state string
+		
+		std::vector<std::string> tokens;
+		size_t last = 0, next = 0; 
+		while ((next = data.find(";", last)) != std::string::npos) { 
+			tokens.push_back(data.substr(last, next - last));   
+			last = next + 1;
+		}
+		
+		std::lock_guard<std::mutex> lock(stateMTX);
+		for (auto& token : tokens) {
+			size_t pos = token.find(":");
+			std::string first = token.substr(0, pos);
+			std::string second = token.substr(pos + 1, token.length() - 1);
+			
+			if (first == "mid")		_state.mp_id = std::stoi(second);
+			else if (first == "x")	_state.mp_x = std::stoi(second);
+			else if (first == "y")	_state.mp_y = std::stoi(second);
+			else if (first == "z")	_state.mp_z = std::stoi(second);
+			// mpry ignored
 
+			else if (first == "pitch")	_state.pitch = std::stoi(second);
+			else if (first == "roll")	_state.roll = std::stoi(second);
+			else if (first == "yaw")	_state.yaw = std::stoi(second);
+			else if (first == "vgx")	_state.vgx = std::stoi(second);
+			else if (first == "vgy")	_state.vgy = std::stoi(second);
+			else if (first == "vgz")	_state.vgz = std::stoi(second);
+			else if (first == "templ")	_state.templ = std::stoi(second);
+			else if (first == "temph")	_state.temph = std::stoi(second);
+			else if (first == "tof")	_state.height = std::stoi(second);
+			else if (first == "h")		_state.h = std::stoi(second);
+			else if (first == "bat")	_state.battery = std::stoi(second);
+			else if (first == "baro")	_state.sea_height = std::stof(second);	// float
+			else if (first == "time")	_state.time = std::stoi(second);
+			else if (first == "agx")	_state.agx = std::stof(second) / 100.f;	  // float
+			else if (first == "agy")	_state.agy = std::stof(second) / 100.f;	  // float
+			else if (first == "agz")	_state.agz = std::stof(second) / 100.f;	  // float
+		}
 	}
 
 	void OnVideoStream(const std::string& data) {
@@ -817,6 +890,9 @@ private:
 	std::atomic<bool> responseError;
 	bool inAir = false;
 	int timeout = 0;
+
+	std::mutex stateMTX;
+	TelloState _state;
 };
 
 

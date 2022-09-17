@@ -10,20 +10,20 @@ void fly() {
         return;
     }
 	
-    PRINTF_WARN("Tello is connected and about to take off and fly around! Are you ready? [Press Enter]");
-    std::cin.get();
+    //PRINTF_WARN("Tello is connected and about to take off and fly around! Are you ready? [Press Enter]");
+    //std::cin.get();
 
-    tello.takeoff();
-
-    tello.move_right(20);
-    tello.move_forward(20);
-    tello.move_left(40);
-    tello.move_back(40);
-    tello.move_right(40);
-    tello.move_forward(20);
-    tello.move_left(20);
-
-    tello.land();
+    //tello.takeoff();
+    //
+    //tello.move_right(20);
+    //tello.move_forward(20);
+    //tello.move_left(40);
+    //tello.move_back(40);
+    //tello.move_right(40);
+    //tello.move_forward(20);
+    //tello.move_left(20);
+    //
+    //tello.land();
 }
 
 int main() {
