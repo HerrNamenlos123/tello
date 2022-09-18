@@ -195,6 +195,11 @@ public:
 		return peer_addr;
 	}
 
+	int get_raw_socket() const
+	{
+		return sock;
+	}
+
 public:
 	template <typename T, typename = typename
 		std::enable_if<sizeof(typename T::value_type) == sizeof(uint8_t)>::type>
@@ -408,7 +413,9 @@ namespace std
 #define TELLO_DEFAULT_DATA_PORT 8890
 #define TELLO_DEFAULT_VIDEO_PORT 11111
 #define TELLO_DEFAULT_LOCAL_PORT 36085
-#define TELLO_DEFAULT_ACTION_TIMEOUT 15000
+
+#define TELLO_DEFAULT_COMMAND_TIMEOUT 1000
+#define TELLO_DEFAULT_ACTION_TIMEOUT 0			// 0 = forever
 
 #define __LOG_COLOR_RED "1;91"
 #define __LOG_COLOR_GREEN "0;92"
@@ -445,9 +452,7 @@ class Tello {
 	
 	class SyncSocket {
     public:
-		SyncSocket(const std::string& targetIP, uint16_t targetPort, uint16_t sourcePort) {
-            this->targetIP = targetIP;
-            this->targetPort = targetPort;
+		SyncSocket(uint16_t sourcePort = 0) {
 			if (socket.open() < 0) {
 				PRINTF_ERROR("%s(): socket.open() failed.", __FUNCTION__);
 				return;
@@ -458,26 +463,42 @@ class Tello {
 			}
         }
 
-        bool send(const std::string& data) {
+        bool send(const std::string& targetIP, uint16_t targetPort, const std::string& data) {
 			UDPsocket::IPv4 ip(targetIP, targetPort);
             return socket.send(data, ip) >= 0;
         }
 
-		std::pair<bool, std::string> recv() {
+		std::pair<bool, std::string> recv(int timeout_ms = 0) {
 			std::string data;
 			UDPsocket::IPv4 sender;
-			int result = socket.recv(data, sender);
-
-			if (result < 0)
+			
+			set_timeout(timeout_ms);
+			if (socket.recv(data, sender) < 0)
 				return std::make_pair(false, "");
 			
 			return std::make_pair(true, data);
 		}
 
     private:
+		bool set_timeout(int timeout_ms) {
+			if (timeout_ms != timeout) {
+				timeout = timeout_ms;
+
+#ifdef _WIN32
+				DWORD timeout = timeout_ms;
+#else
+				struct timeval timeout;
+				timeout.tv_sec = timeout / 1000;
+				timeout.tv_usec = (timeout * 1000) % 1000000;
+#endif
+				return ::setsockopt(socket.get_raw_socket(), SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout, sizeof timeout) >= 0;
+			}
+			return true;
+		}
+		
+	private:
         UDPsocket socket;
-        std::string targetIP;
-        uint16_t targetPort = 0;
+		int timeout = 0;
     };
 
 	class AsyncSocket {
@@ -493,7 +514,6 @@ class Tello {
 				PRINTF_ERROR("%s(): socket.bind() failed. The port %d may be in use by another application.", __FUNCTION__, port);
 				return;
 			}
-			PRINTF_ERROR("async port %d", port);
 			listener = std::thread([&] { listen(); });
 		}
 
@@ -511,9 +531,7 @@ class Tello {
 	private:
 		void listen() {
 			while (!terminate) {
-				PRINTF_ERROR("recv");
 				int error = socket.recv(data, ipaddr);
-				PRINTF_ERROR("recv: %s", data.c_str());
 				if (error < 0) {
 					PRINTF_ERROR("%s(): socket.recv() failed: Error code %d", __FUNCTION__, error);
 					continue;
@@ -590,16 +608,15 @@ public:
 	};
 
 public:
-	Tello(int timeout = TELLO_DEFAULT_ACTION_TIMEOUT,
+	Tello(
 		uint16_t commandPort = TELLO_DEFAULT_COMMAND_PORT,
 		uint16_t dataPort = TELLO_DEFAULT_DATA_PORT,
 		uint16_t videoPort = TELLO_DEFAULT_VIDEO_PORT,
 		uint16_t localPort = TELLO_DEFAULT_LOCAL_PORT) :
-		commandServer(localPort, [&](auto& data, auto& ip) { this->OnResponse(data); }),
+		commandServer(localPort),
 		dataServer(dataPort, [&](auto& data, auto& ip) { this->OnDataStream(data); }),
 		videoServer(videoPort, [&](auto& data, auto& ip) { this->OnVideoStream(data); }),
 		commandPort(commandPort),
-		timeout(timeout),
 		missionPadAPI(this)
     {
 	}
@@ -611,20 +628,27 @@ public:
 		}
 	}
 
-	bool connect(const std::string& ipAddress = TELLO_DEFAULT_IP) {
+	bool connect(const std::string& ipAddress = TELLO_DEFAULT_IP, int attempt = 1) {
 		this->ipAddress = ipAddress;
 		connected = true;
 
-		PRINTF_INFO("[Tello] Connecting to %s", ipAddress.c_str());
+		if (attempt == 1) PRINTF_INFO("[Tello] Connecting to %s", ipAddress.c_str());
 		if (!execute_command("command")) {
-			PRINTF_ERROR("[Tello] Tello not found. Please check the connection");
-			connected = false;
-			return false;
+			if (attempt < 10) {
+				PRINTF_ERROR("[Tello] Tello not found: Timeout. Retrying");
+				return connect(ipAddress, attempt + 1);
+			}
+			else {
+				PRINTF_ERROR("[Tello] Tello not found. Please check the connection");
+				connected = false;
+				return false;
+			}
 		}
 		float battery = get_battery_level();
 		PRINTF_INFO("[Tello] Connected: Battery level %.0f%%", battery);
 		if (battery < 5.f) {
 			PRINTF_ERROR("[Tello] ERROR: The battery level is below 5%%! Do not fly anymore!");
+			connected = false;
 			return false;
 		}
 		else if (battery < 10.f) {
@@ -648,31 +672,31 @@ public:
 	// === Control Commands ===
 	
 	// 'command' is implemented elsewhere
-	bool takeoff() { return execute_command("takeoff"); }
-	bool land() { return execute_command("land"); }
+	bool takeoff() { return execute_action("takeoff"); }
+	bool land() { return execute_action("land"); }
 	// 'streamon' is implemented elsewhere
 	// 'streamoff' is implemented elsewhere
 	bool emergency() { return execute_command("emergency"); }
 	
-	bool move_up(float distance_cm) { return execute_command("up", distance_cm); }
-	bool move_down(float distance_cm) { return execute_command("down", distance_cm); }
-	bool move_left(float distance_cm) { return execute_command("left", distance_cm); }
-	bool move_right(float distance_cm) { return execute_command("right", distance_cm); }
-	bool move_forward(float distance_cm) { return execute_command("forward", distance_cm); }
-	bool move_back(float distance_cm) { return execute_command("back", distance_cm); }
+	bool move_up(float distance_cm) { return execute_action("up", distance_cm); }
+	bool move_down(float distance_cm) { return execute_action("down", distance_cm); }
+	bool move_left(float distance_cm) { return execute_action("left", distance_cm); }
+	bool move_right(float distance_cm) { return execute_action("right", distance_cm); }
+	bool move_forward(float distance_cm) { return execute_action("forward", distance_cm); }
+	bool move_back(float distance_cm) { return execute_action("back", distance_cm); }
 
-	bool turn_right(float angle_deg) { return execute_command("cw", angle_deg); }
-	bool turn_left(float angle_deg) { return execute_command("ccw", angle_deg); }
+	bool turn_right(float angle_deg) { return execute_action("cw", angle_deg); }
+	bool turn_left(float angle_deg) { return execute_action("ccw", angle_deg); }
 	
-	bool flip(enum FlipDirection flipDirection) { 
-		return execute_command("flip", static_cast<char>(flipDirection));
+	bool flip(enum FlipDirection flipDirection) {
+		return execute_action("flip", static_cast<char>(flipDirection));
 	}
 		
-	bool move_by(float x, float y, float z, float speed_cmps) { return execute_command("go", x, y, z, speed_cmps); }
+	bool move_by(float x, float y, float z, float speed_cmps) { return execute_action("go", x, y, z, speed_cmps); }
 	bool stop() { return execute_command("stop"); }		// Can be called at any time
 	
 	bool fly_arc(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, float speed_cmps) { 
-		return execute_command("curve", start_x, start_y, start_z, end_x, end_y, end_z, speed_cmps); 
+		return execute_action("curve", start_x, start_y, start_z, end_x, end_y, end_z, speed_cmps);
 	}
 	
 
@@ -680,13 +704,13 @@ public:
 	
 	bool set_speed(float speed) { return execute_command("speed", speed); }
 	bool move(float left_right, float forward_back, float up_down, float yaw) { 
-		return execute_command("rc", left_right, forward_back, up_down, yaw); 
+		return execute_command("rc", left_right, forward_back, up_down, yaw);
 	}
 	bool set_wifi_password(const std::string& ssid, const std::string& password) {
 		return execute_command("wifi", ssid, password);
 	}
 	bool connect_to_wifi(const std::string& ssid, const std::string& password) {
-		return execute_command("ap", ssid, password);
+		return execute_action("ap", ssid, password);
 	}
 
 
@@ -709,15 +733,15 @@ public:
 	// This function allows you to send any string directly to the Tello, in case
 	// it should ever be necessary. It waits for an 'ok' response and returns false
 	// in case of timeout.
-	bool execute_manual_command(const std::string& command) {
-		execute_command(command);
+	bool execute_manual_command(const std::string& command, int timeout_ms) {
+		execute_command_raw(command, timeout_ms);
 	}
 	
 	// This function allows you to send any command directly and return the raw response, 
 	// this might be used for reading a sensor value. String must be parsed to whatever datatype
 	// you expect to receive
 	std::string get_manual_response(const std::string& command) {
-		get_reading(command);
+		get_str(command);
 	}
 	
 	// This function tells you if the connection has been established once.
@@ -731,6 +755,14 @@ public:
 		std::this_thread::sleep_for(std::chrono::milliseconds(ms));
 	}
 
+	void set_action_timeout(int timeout_ms) {
+		actionTimeout = timeout_ms;
+	}
+
+	void set_command_timeout(int timeout_ms) {
+		commandTimeout = timeout_ms;
+	}
+
 	TelloState state() {
 		std::lock_guard<std::mutex> lock(stateMTX);
 		return _state;
@@ -739,14 +771,14 @@ public:
 private:
 
 	float get_float(const std::string& cmd) {
-		std::string response = get_reading(cmd);
-		if (response.empty())
+		std::string response = get_str(cmd);
+		try {
+			return std::stof(response);
+		}
+		catch (...) {
+			PRINTF_ERROR("[Tello] Could not parse value from request '%s'. Received '%s': Not a valid float", cmd.c_str(), response.c_str());
 			return 0.f;
-		return std::stof(response);
-	}
-
-	std::string get_str(const std::string& cmd) {
-		return get_reading(cmd);
+		}
 	}
 
 	template<typename T>
@@ -759,59 +791,61 @@ private:
 		return execute_command(str + " " + toString(arg), args...);
 	}
 
-	std::string get_reading(const std::string& str) {
-		if (!connected) {
-			PRINTF_ERROR("[Tello] %s(): ERROR -> Tello not connected\n", __FUNCTION__);
-			return "";
-		}
-		
-		if (!execute_command(str.c_str()))
-			return "";
-		return response;
+	template<typename T, typename... TArgs>
+	bool execute_action(const std::string& str, T arg, TArgs... args) {
+		return execute_action(str + " " + toString(arg), args...);
 	}
-	
-	bool execute_command(const std::string& str, bool silent = false) {
-		if (!connected) {
-			PRINTF_ERROR("[Tello] %s(): ERROR -> Tello not connected\n", __FUNCTION__);
-			return false;
-		}
-		
-		response.clear();
-		responseOK = false;
-		responseError = false;
-		
-		PRINTF_DEBUG("[Tello] DEBUG: Sending command '%s'", str.c_str());
 
-		std::unique_lock<std::mutex> lock(actionMTX);
-		if (!commandServer.send(ipAddress, commandPort, str)) {
-			if (!silent) PRINTF_ERROR("[Tello] Failed to send command '%s': Socket error", str.c_str());
+	std::string get_str(const std::string& str, bool silent = false) {
+		auto& response = send_request(str, commandTimeout, silent);
+		if (!response.first)
+			return "";
+
+		return response.second;
+	}
+
+	bool execute_command_raw(const std::string& str, int timeout_ms, bool silent = false) {
+		auto& response = send_request(str, timeout_ms, silent);
+		if (!response.first)
+			return false;
+
+		if (response.second != "ok") {
+			if (!silent) PRINTF_ERROR("[Tello] Failed to send command '%s': Expected response 'ok', received '%s'", str.c_str(), response.second.c_str());
 			return false;
 		}
 
-		int result = waitForResponse(timeout);
-		if (result == 1) {
-			if (!silent) PRINTF_ERROR("[Tello] Failed to send command '%s': Timeout waiting for response", str.c_str());
-			return false;
-		}
-		else if (result == 2) {
-			if (!silent) PRINTF_ERROR("[Tello] Failed to send command '%s': The response was error", str.c_str());
-			return false;
-		}
 		return true;
 	}
 	
-	void OnResponse(const std::string& data) {
-		if (data == "ok") {
-			responseOK = true;
-			return;
+	bool execute_command(const std::string& str, bool silent = false) {
+		return execute_command_raw(str, commandTimeout, silent);
+	}
+
+	bool execute_action(const std::string& str, bool silent = false) {
+		return execute_command_raw(str, silent);
+	}
+
+	std::pair<bool, std::string> send_request(const std::string& str, int timeout_ms, bool silent) {
+		if (!connected) {
+			if (!silent) PRINTF_ERROR("[Tello] %s(): ERROR -> Tello not connected\n", __FUNCTION__);
+			return std::make_pair(false, "");
 		}
-		else if (data.substr(0, 5) == "error") {
-			responseError = true;
-			return;
+
+		if (!silent) PRINTF_DEBUG("[Tello] DEBUG: Sending command '%s'", str.c_str());
+
+		std::unique_lock<std::mutex> lock(requestMTX);
+		if (!commandServer.send(ipAddress, commandPort, str)) {
+			if (!silent) PRINTF_ERROR("[Tello] Failed to send command '%s': Socket error", str.c_str());
+			return std::make_pair(false, "");
 		}
-		
-		response = data;	// Remember response string
-		responseOK = true;
+
+		auto recv = commandServer.recv(timeout_ms);
+		if (!recv.first) {
+			if (!silent) PRINTF_ERROR("[Tello] Failed to send command '%s': Timeout waiting for response", str.c_str());
+			return std::make_pair(false, "");
+		}
+
+		return std::make_pair(true, recv.second);
 	}
 
 	void OnDataStream(std::string data) {
@@ -859,40 +893,21 @@ private:
 
 	}
 
-	int waitForResponse(int timeout_ms, int interval_us = 100) {
-		using namespace std::chrono;
-		
-		auto start = system_clock::now();
-		while (!responseOK) {
-			std::this_thread::sleep_for(microseconds(interval_us));
-			if (duration_cast<milliseconds>(system_clock::now() - start).count() > timeout_ms) {
-				return 1;
-			}
-			if (responseError) {
-				return 2;
-			}
-		}
-		return 0;
-	}
-
 private:
-	AsyncSocket commandServer;
+	SyncSocket commandServer;
 	AsyncSocket dataServer;
 	AsyncSocket videoServer;
 
 	bool connected = false;
-
+	
 	std::string ipAddress;
 	uint16_t commandPort = 0;
-	std::string response;
+	int commandTimeout = TELLO_DEFAULT_COMMAND_TIMEOUT;
+	int actionTimeout = TELLO_DEFAULT_ACTION_TIMEOUT;
 
-	std::mutex actionMTX;
-	std::atomic<bool> responseOK;
-	std::atomic<bool> responseError;
-	bool inAir = false;
-	int timeout = 0;
+	std::mutex requestMTX;	// Locking UDP requests
 
-	std::mutex stateMTX;
+	std::mutex stateMTX;	// Locking access to the Tello state
 	TelloState _state;
 };
 
