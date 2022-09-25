@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0.2)
 
-project(tello VERSION 0.1.1 LANGUAGES CXX)
+project(tello VERSION 1.0.0 LANGUAGES CXX)
 
 add_library(tello INTERFACE)
 add_library(tello::tello ALIAS tello)
