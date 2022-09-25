@@ -1,5 +1,8 @@
 # Tello
 
+![MIT](https://img.shields.io/badge/license-MIT-blue.svg)
+![CI](https://github.com/HerrNamenlos123/tello/actions/workflows/cmake.yml/badge.svg)
+
 <img src="assets/tello.png" alt="Tello drone" align="right" width=40%>
 
 C++14 single-header cross-platform library to control a DJI Ryze Tello drone using the [Tello SDK 2.0](https://dl-cdn.ryzerobotics.com/downloads/Tello/Tello%20SDK%202.0%20User%20Guide.pdf).
