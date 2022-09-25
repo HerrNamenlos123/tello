@@ -1,6 +1,6 @@
-<img src="assets/tello.png" alt="Tello drone" align="right" width=40%>
-
 # Tello
+
+<img src="assets/tello.png" alt="Tello drone" align="right" width=40%>
 
 C++14 single-header cross-platform library to control a DJI Ryze Tello drone using the [Tello SDK 2.0](https://dl-cdn.ryzerobotics.com/downloads/Tello/Tello%20SDK%202.0%20User%20Guide.pdf).
 
