@@ -163,7 +163,7 @@ while (true) {
 }
 ```
 
-## Vision Support (OpenCV Camera)
+## Vision Support (OpenCV camera stream)
 
 Below is an example for capturing the live video stream of the Tello. As soon as enabled, the Tello will stream the video feed to the UDP port 11111, encoded in h264 encoding. Simply listen on this port for incoming packets.
 
