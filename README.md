@@ -106,6 +106,14 @@ tello.get_serial_number();
 
 Disclaimer: Only the functions which you are most likely to use are listed here. Not all are documented.
 
+### Sleep
+
+And finally, there is also sleep. This is just for your convenience, it simply puts the current thread to sleep for x milliseconds;
+
+```c++
+tello.sleep(100);       // Sleep 100ms
+```
+
 ### Mission Pad API
 
 All functions regarding Mission Pads are separated into a nested structure, because they are very uncommon to use for most users. This keeps your IntelliSense suggestions clean.
@@ -117,25 +125,6 @@ tello.missionPadAPI.set_pad_detection_direction();
 tello.missionPadAPI.fly_straight_to_pad();
 tello.missionPadAPI.fly_arc_to_pad();
 tello.missionPadAPI.jump_to_next_pad();
-```
-
-### Timeouts
-
-There are two different timeouts: action timeouts and command timeouts. You usually do not need to set this.
-
-```c++
-tello.set_action_timeout(ms);     // [default: 0]       -> 0=forever
-tello.set_command_timeout(ms);    // [default: 1000]    -> 0=forever
-```
-
-The command timeout is used for all functions that should return a value immediately like setting a value and the action timeout is used for those that take longer, like moving to a position or takeoff. It specifies for how long to wait for a response until an error is returned.
-
-### Sleep
-
-And finally, there is also sleep. This is just for your convenience, it simply puts the current thread to sleep for x milliseconds;
-
-```c++
-tello.sleep(100);       // Sleep 100ms
 ```
 
 ## Tello State example
