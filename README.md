@@ -45,6 +45,27 @@ tello.takeoff();
 tello.land();
 ```
 
+### CMake
+
+The following would be the simplest CMakeLists.txt for working with the tello library.
+
+```cmake
+cmake_minimum_required(VERSION 3.0.2)
+
+project(example)
+
+add_subdirectory(../tello bin)  # Path to tello library
+
+add_executable(example main.cpp)
+target_link_libraries(example tello::tello) # Link to it
+
+if (MSVC)   # At least C++14 standard required
+    target_compile_options(example PUBLIC /std:c++14)
+else()
+    target_compile_options(example PUBLIC --std=c++14)
+endif()
+```
+
 ### Most important functions
 
 These are your basic functions for controlling the Tello drone
