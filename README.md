@@ -4,13 +4,13 @@
 
 C++14 single-header cross-platform library to control a DJI Ryze Tello drone using the [Tello SDK 2.0](https://dl-cdn.ryzerobotics.com/downloads/Tello/Tello%20SDK%202.0%20User%20Guide.pdf).
 
-## Build process
+## Build process🛠️
 
 There is no build or install process for the library. You only need to include [tello.hpp](tello.hpp) and that's it. Look at the examples to see how to use it.
 
 Alternatively, there is also a `CMakeLists.txt` available, so if you want to keep it easy to update you might also use this repository as a git submodule. Then you would simply include the library in cmake. Take a look at the [example](example) folder to see how it is done using CMake.
 
-## Portability/Compatitibility
+## Portability/Compatitibility📌
 
 This library is written in C++14, which means your program including it must be compiled using at least C++14 or higher. It was written in a way that it is compatible with compilers going back to gcc-4.9, which was the gcc version for Debian Jessie.
 
@@ -18,7 +18,7 @@ This library is cross-platform, it works exactly the same on Windows and Linux. 
 
 `tello.hpp` includes the Linux API or the Win32 API correspondingly. If this causes a conflict with another library or simply pollutes your headers too much, you must separate them by moving it into a different cpp file. In the best case, only use the Tello library in a single cpp file and do all other stuff in other files, not touching the Tello calls anymore. This gives you the cleanest project and the fastest build times.
 
-## Examples
+## Examples🖥️
 
 ### Building the example
 
@@ -127,7 +127,7 @@ tello.missionPadAPI.fly_arc_to_pad();
 tello.missionPadAPI.jump_to_next_pad();
 ```
 
-## Tello State example
+### Tello State example
 
 This is the way to access the Tello State string which is streamed by the Tello. The string is parsed automatically in the background, as soon as one arrives. `tello.state();` is thread-safe.
 
@@ -152,7 +152,7 @@ while (true) {
 }
 ```
 
-## Vision Support (OpenCV camera stream)
+## Vision Support (OpenCV camera stream)🎥
 
 Below is an example for capturing the live video stream of the Tello. As soon as enabled, the Tello will stream the video feed to the UDP port 11111, encoded in h264 encoding. Simply listen on this port for incoming packets.
 
@@ -188,7 +188,7 @@ int main() {
 }
 ```
 
-## My drone is not connecting
+## My drone is not connecting📢
 
 To connect to the drone, connect to its wi-fi and then run the program. If it doesn't connect instantly, there are some things you might watch out for:
 
