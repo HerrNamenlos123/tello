@@ -412,7 +412,6 @@ namespace std
 #define TELLO_DEFAULT_IP "192.168.10.1"
 #define TELLO_DEFAULT_COMMAND_PORT 8889
 #define TELLO_DEFAULT_DATA_PORT 8890
-#define TELLO_DEFAULT_VIDEO_PORT 11111
 #define TELLO_DEFAULT_LOCAL_PORT 36085
 
 #define TELLO_DEFAULT_COMMAND_TIMEOUT 1000
@@ -612,11 +611,9 @@ public:
 	Tello(
 		uint16_t commandPort = TELLO_DEFAULT_COMMAND_PORT,
 		uint16_t dataPort = TELLO_DEFAULT_DATA_PORT,
-		uint16_t videoPort = TELLO_DEFAULT_VIDEO_PORT,
 		uint16_t localPort = TELLO_DEFAULT_LOCAL_PORT) :
 		commandServer(localPort),
 		dataServer(dataPort, [&](auto& data, auto& ip) { this->OnDataStream(data); }),
-		videoServer(videoPort, [&](auto& data, auto& ip) { this->OnVideoStream(data); }),
 		commandPort(commandPort),
 		missionPadAPI(this)
 	{
@@ -675,8 +672,8 @@ public:
 	// 'command' is implemented elsewhere
 	bool takeoff() { return execute_action("takeoff"); }
 	bool land() { return execute_action("land"); }
-	// 'streamon' is implemented elsewhere
-	// 'streamoff' is implemented elsewhere
+	bool enable_video_stream() { return execute_command("streamon"); }
+	bool disable_video_stream() { return execute_command("streamoff"); }
 	bool emergency() { return execute_command("emergency"); }
 
 	bool move_up(float distance_cm) { return execute_action("up", distance_cm); }
@@ -890,14 +887,9 @@ private:
 		}
 	}
 
-	void OnVideoStream(const std::string& data) {
-
-	}
-
 private:
 	SyncSocket commandServer;
 	AsyncSocket dataServer;
-	AsyncSocket videoServer;
 
 	bool connected = false;
 

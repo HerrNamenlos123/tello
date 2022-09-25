@@ -142,6 +142,42 @@ while (true) {
 }
 ```
 
+## Vision Support (OpenCV Camera)
+
+Below is an example for capturing the live video stream of the Tello. As soon as enabled, the Tello will stream the video feed to the UDP port 11111, encoded in h264 encoding. Simply listen on this port for incoming packets.
+
+The example below shows how it can be done directly in recent OpenCV versions, on older versions you might have to implement an external h264 decoder manually as OpenCV might not have supported it back then.
+
+This example was tested with OpenCV 4.5.4.
+
+```c++
+#include "tello.hpp"
+
+#include "opencv2/core.hpp"
+#include "opencv2/highgui.hpp"
+#include "opencv2/imgcodecs.hpp"
+
+int main() {
+
+    cv::VideoCapture capture{"udp://0.0.0.0:11111", cv::CAP_FFMPEG};
+
+    Tello tello;
+    if (!tello.connect()) return 0;
+    tello.enable_video_stream();
+
+    while (true) {
+        cv::Mat frame;
+        capture >> frame;
+        if (!frame.empty()) {
+            cv::imshow("Tello Stream", frame);
+        }
+        if (cv::waitKey(1) == 27) {
+            break;
+        }
+    }
+}
+```
+
 ## My drone is not connecting
 
 To connect to the drone, connect to its wi-fi and then run the program. If it doesn't connect instantly, there are some things you might watch out for:
