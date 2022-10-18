@@ -213,8 +213,6 @@ This library uses the [UDPsocket](https://github.com/barczynsky/UDPsocket) singl
 
 I do all of my projects in my free time and I do not get any money for that. I just like what I do, do it for myself and want to share it so that others can benefit too.
 
-<a href="https://www.buymeacoffee.com/herrnamenlos123" target="_blank">
-    <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" >
-</a>
+I like to drink beer and any support is greatly apprechiated :)
 
-Exactly for this reason would it be even more amazing if you could find the motivation to buy me a coffee :)
+<a href="https://www.buymeacoffee.com/herrnamenlos123"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a beer&emoji=🍺&slug=herrnamenlos123&button_colour=FFDD00&font_colour=000000&font_family=Lato&outline_colour=000000&coffee_colour=ffffff" /></a>
