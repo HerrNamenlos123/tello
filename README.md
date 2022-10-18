@@ -16,7 +16,7 @@ Alternatively, there is also a `CMakeLists.txt` available, so if you want to kee
 
 ## Portability/Compatitibility📌
 
-This library is written in C++14, which means your program including it must be compiled using at least C++14 or higher. It was written in a way that it is compatible with compilers going back to gcc-4.9, which was the gcc version for Debian Jessie. This means it should work on any Linux version higher than Debian Jessie or similar.
+This library is written in C++14, which means your program including it must be compiled using at least C++14 or higher. It was written in a way that it is compatible with compilers going back to gcc-4.9, which was the gcc version for Debian Jessie. This means it should work on any Linux version higher than Debian Jessie and its derivatives.
 
 This library is cross-platform, it works exactly the same on Windows and Linux. MacOS is untested.
 
