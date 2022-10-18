@@ -16,9 +16,9 @@ Alternatively, there is also a `CMakeLists.txt` available, so if you want to kee
 
 ## Portability/Compatitibility📌
 
-This library is written in C++14, which means your program including it must be compiled using at least C++14 or higher. It was written in a way that it is compatible with compilers going back to gcc-4.9, which was the gcc version for Debian Jessie.
+This library is written in C++14, which means your program including it must be compiled using at least C++14 or higher. It was written in a way that it is compatible with compilers going back to gcc-4.9, which was the gcc version for Debian Jessie. This means it should work on any Linux version higher than Debian Jessie or similar.
 
-This library is cross-platform, it works exactly the same on Windows and Linux. MacOS is untested. It was tested on Windows 10 and on Debian Jessie for backwards compatibility.
+This library is cross-platform, it works exactly the same on Windows and Linux. MacOS is untested.
 
 `tello.hpp` includes the Linux API or the Win32 API correspondingly. If this causes a conflict with another library or simply pollutes your headers too much, you must separate them by moving it into a different cpp file. In the best case, only use the Tello library in a single cpp file and do all other stuff in other files, not touching the Tello calls anymore. This gives you the cleanest project and the fastest build times.
 
