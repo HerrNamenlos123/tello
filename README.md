@@ -2,7 +2,7 @@
 
 ![MIT](https://img.shields.io/badge/license-MIT-blue.svg)
 ![CI](https://github.com/HerrNamenlos123/tello/actions/workflows/cmake.yml/badge.svg)
-![LINES-OF-CODE](https://img.shields.io/tokei/lines/github/HerrNamenlos123/tello)
+<!--![LINES-OF-CODE](https://img.shields.io/tokei/lines/github/HerrNamenlos123/tello)-->
 
 <img src="assets/tello.png" alt="Tello drone" align="right" width=40%>
 
