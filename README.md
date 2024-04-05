@@ -100,9 +100,10 @@ tello.get_flight_time();
 tello.get_wifi_snr();
 tello.get_sdk_version();
 tello.get_serial_number();
+...
 ```
 
-Disclaimer: Only the functions which you are most likely to use are listed here. Not all are documented.
+Note: These are the ones you are most likely to use, but there are more.
 
 ### Sleep
 
