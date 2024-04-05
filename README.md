@@ -55,19 +55,13 @@ The following would be the simplest CMakeLists.txt for working with the tello li
 
 ```cmake
 cmake_minimum_required(VERSION 3.0.2)
-
 project(example)
 
-add_subdirectory(../tello bin)  # Path to tello library
+add_subdirectory(../tello bin)  # Path to tello library (and a binary dir if tello is external)
 
 add_executable(example main.cpp)
-target_link_libraries(example tello::tello) # Link to it
-
-if (MSVC)   # At least C++14 standard required
-    target_compile_options(example PUBLIC /std:c++14)
-else()
-    target_compile_options(example PUBLIC --std=c++14)
-endif()
+target_compile_features(example PUBLIC cxx_std_14) # At least C++14 standard required
+target_link_libraries(example tello::tello)
 ```
 
 ### Most important functions
